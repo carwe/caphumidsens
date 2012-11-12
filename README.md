@@ -18,9 +18,9 @@ The chosen values let the output oscillate with around 74kHz, when dry and in ai
 
 
 Measurements (frequency in kHz):
-		Rev1/TTL	Rev1/CMOS	Rev3/CMOS
-air		74,9		66,8		91,6
-dry soil	73,1		65,3		91,3
-half-wet soil	64,0		52,5		73,4
-wet soil	13,4		17,8		37,6
-water		3,4		?		?
+                Rev1/TTL        Rev1/CMOS        Rev3/CMOS
+air             74,9                66,8                91,6
+dry soil        73,1                65,3                91,3
+half-wet soil   64,0                52,5                73,4
+wet soil        13,4                17,8                37,6
+water            3,4                 ?                   ?
