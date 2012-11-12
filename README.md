@@ -10,6 +10,6 @@ The chosen values let the output oscillate with around 74kHz, when dry and in ai
 
 <b>Rev2:</b> died an early death and was never physically fabricated.
 
-<b>Rev3:</b> is space-optimized and the components are nicely placed in a row, the draw-back is, they are too close - unfortuntely I had some of them fabricated, so it needed some fiddling to solder. Don not use this layout. In the discussion about this board some ideas came along: you probably want to measure the humidity in the middle of the soil, at least not directly on the surface, where it probably varies most. And there should be some kind of safety-margin, you don't want to change the capacitance by moving it slightly in and out of the soil. Next design should adress this.
+<b>Rev3:</b> is space-optimized and the components are nicely placed in a row, the draw-back is, they are too close - unfortuntely I had some of them fabricated, so it needed some fiddling to solder. <b>Do not use this layout.</b> In the discussion about this board some ideas came along: you probably want to measure the humidity in the middle of the soil, at least not directly on the surface, where it varies most. And there should be some kind of safety-margin, you don't want to change the capacitance by moving it slightly in and out of the soil. Next design should adress this.
 
 <b>Rev4:</b> coming soon (Nov 2012)
