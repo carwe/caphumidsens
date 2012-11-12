@@ -126,7 +126,7 @@
 <text x="32" y="6.5" size="0.8128" layer="25" font="vector" ratio="15" rot="R180">D1=1N4148</text>
 <text x="8.7" y="5.9" size="0.8128" layer="25" font="vector" ratio="20">C1</text>
 <text x="8.5" y="2.9" size="0.8128" layer="25" font="vector" ratio="20">C2</text>
-<text x="10.85" y="7.95" size="0.8128" layer="25" font="vector" ratio="20">R1</text>
+<text x="10.85" y="4.35" size="0.8128" layer="25" font="vector" ratio="20">R1</text>
 <text x="10.85" y="0.75" size="0.8128" layer="25" font="vector" ratio="20">R2</text>
 <text x="7.2" y="1.7" size="0.8128" layer="25" font="vector" ratio="20" rot="R180">D1</text>
 <text x="2.9" y="3.9" size="0.8128" layer="25" font="vector" ratio="20">IC1</text>
