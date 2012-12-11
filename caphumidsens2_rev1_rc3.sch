@@ -1162,7 +1162,7 @@ Source: http://www.atmel.com/dyn/resources/prod_documents/2535S.pdf</description
 <part name="P+3" library="supply1" deviceset="VCC" device=""/>
 <part name="VCC" library="wirepad" deviceset="SMD2" device="" value="WIREPADSMD2,54-5,08"/>
 <part name="OUT" library="wirepad" deviceset="SMD2" device="" value="WIREPADSMD2,54-5,08"/>
-<part name="IC1" library="atmel" deviceset="TINY13" device="SSU" technology="V-10" value="ATtiny25/45/85"/>
+<part name="IC1" library="atmel" deviceset="TINY13" device="SSU" technology="V-10" value="ATtiny25/45/85/13A"/>
 <part name="P+5" library="supply1" deviceset="VCC" device=""/>
 <part name="GND5" library="supply1" deviceset="GND" device=""/>
 <part name="R2" library="SparkFun" deviceset="RESISTOR" device="0805-RES" value="100k"/>
