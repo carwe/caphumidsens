@@ -166,8 +166,6 @@ chip</description>
 <rectangle x1="1.651" y1="-1.3208" x2="2.5009" y2="1.3292" layer="51"/>
 </package>
 <package name="0805">
-<wire x1="-0.3" y1="0.6" x2="0.3" y2="0.6" width="0.1524" layer="21"/>
-<wire x1="-0.3" y1="-0.6" x2="0.3" y2="-0.6" width="0.1524" layer="21"/>
 <smd name="1" x="-0.9" y="0" dx="0.8" dy="1.2" layer="1"/>
 <smd name="2" x="0.9" y="0" dx="0.8" dy="1.2" layer="1"/>
 <text x="-0.762" y="0.8255" size="0.4064" layer="25">&gt;NAME</text>
