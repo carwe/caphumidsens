@@ -1174,6 +1174,7 @@ Source: http://www.atmel.com/dyn/resources/prod_documents/2535S.pdf</description
 <part name="GND2" library="supply1" deviceset="GND" device=""/>
 <part name="GND4" library="supply1" deviceset="GND" device=""/>
 <part name="GND7" library="supply1" deviceset="GND" device=""/>
+<part name="(OUT2)" library="wirepad" deviceset="SMD2" device="" value="WIREPADSMD2,54-5,08"/>
 </parts>
 <sheets>
 <sheet>
@@ -1223,6 +1224,9 @@ Source: http://www.atmel.com/dyn/resources/prod_documents/2535S.pdf</description
 <instance part="GND2" gate="1" x="53.34" y="22.86" smashed="yes"/>
 <instance part="GND4" gate="1" x="7.62" y="43.18" smashed="yes"/>
 <instance part="GND7" gate="1" x="20.32" y="27.94" smashed="yes"/>
+<instance part="(OUT2)" gate="1" x="43.18" y="17.78" smashed="yes">
+<attribute name="NAME" x="41.021" y="18.7198" size="1.778" layer="95" rot="R180"/>
+</instance>
 </instances>
 <busses>
 </busses>
@@ -1330,9 +1334,12 @@ Source: http://www.atmel.com/dyn/resources/prod_documents/2535S.pdf</description
 <segment>
 <pinref part="OSC1" gate="G$1" pin="OUT"/>
 <pinref part="IC1" gate="G$1" pin="PB3/PCINT3/CLKI/ADC3"/>
-<wire x1="45.72" y1="5.08" x2="45.72" y2="38.1" width="0.1524" layer="91"/>
+<wire x1="45.72" y1="5.08" x2="45.72" y2="17.78" width="0.1524" layer="91"/>
+<wire x1="45.72" y1="17.78" x2="45.72" y2="38.1" width="0.1524" layer="91"/>
 <wire x1="45.72" y1="38.1" x2="53.34" y2="38.1" width="0.1524" layer="91"/>
 <label x="93.98" y="37.338" size="1.778" layer="95"/>
+<pinref part="(OUT2)" gate="1" pin="P"/>
+<junction x="45.72" y="17.78"/>
 </segment>
 </net>
 <net name="OUTPUT_OR_DEBUGWIRE" class="0">
