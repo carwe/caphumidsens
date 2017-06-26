@@ -38,10 +38,18 @@ Lately I discussed about the project, and it quickly became clear, that it shoul
 
 With a ATtiny25/45/85 (maybe ATtiny13A too, if the code fits into it - comparator is existent there too, and the pinout is the same) I tried to create a NE555-similar structure. A capacitator is charged to a higher voltage, then discharged to a lower voltage, and a comparator toggles the (dis-)charging.
 
-Unfortunately I could not use the internal voltage reference, as it is attached to the "wrong" side of the analog comparator (see datasheet doc2586 Figure 16-1 "Analog Comparator Block Diagram"). If I use the internal reference, I cannot use the multiplexer, and vice versa (you can compare AIN0 only with the multiplexer-input or AIN1 only with the internal reference, not AIN0/AIN1 with the multiplexer-input AND the internal reference). So I had to use an additional pin as second voltage reference (pin 3 and pin 7 as one third and two thirds of VCC - NE555-like).
+You have to decide if you want to use the internal voltage reference or not. If yes, you have to sense the voltage with AIN1 and compare it to the internal voltage reference and AIN0 as external voltage reference. If no, you have to sense the voltage with AIN0 and compare it witho two external voltage references on ADC0-ADC3. Some time ago I wrote here you could not compare against the internal reference and the multiplexer at the same time and save a pin - which is true, but you don't need to, it just requires another layout. To use the internal voltage reference for one side of the comparison, you have to have your sense pin as negative side on AIN1, and select the internal reference for the positive side of the AC. Then compare negative side AIN1 with AIN0 as the positive side of the AC. But, this is not what I designed.
+
+I chose to use two external voltage references, created by division of VCC, same as in 555. This way it makes no difference what exact voltage VCC is, it can even change, the resulting frequency is independent. So you sense the voltage on AIN0 as positive side of the AC, and the multiplexer as negative side, and switch the input of the multiplexer as you charge (ADC1) and discharge (ADC2).
 
 Pin 6 is set to VCC or GND to charge or discharge the capacitator, pin 5 senses the voltage and compares it to pin 3 or 7. On pin 1 (and maybe pin 2, if clock-ínput is not needed) you can talk a protocol you like - a simple frequency like the NE555 or something more complex, maybe pulling the line low against a central pull-resistor (I2C-like), sending your ID (stored in EEPROM) followed by the measured capacity. After you have written out a bit of your ID, you read it back, if another sensor is sending too (pulling the line dominates leaving the line alone, so the ID with the most "pulling bits" is the highest, CAN-like). The frequency of the messages is low enough, so that collisions should hardly occur, and if, you simply repeat your message.
 
 Pin 1 is the reset/debugwire-pin too, so you can use debugwire to program the harder part of measuring the capacity, as you don't need the output-pin during this time. I have added small capacitators to even out the reference voltages, if that is necessary.
 
 In the next days, I should receive some of them from the manufacturer.
+
+Update five years later, 2017: yes I got them. and then I forgot them. And, I would not use Eagle anymore. Never again. Took me an hour to find an old version I could use with my licence, it brought me to tears what happened to this program after being bought by Autodesk. Everybody warned me to use this 0nonfree software, and I thought "whatever... works for me." - then reality hit.
+
+
+
+
