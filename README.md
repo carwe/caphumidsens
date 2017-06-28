@@ -48,7 +48,7 @@ Pin 1 is the reset/debugwire-pin too, so you can use debugwire to program the ha
 
 In the next days, I should receive some of them from the manufacturer.
 
-Update five years later, 2017: yes I got them. and then I forgot them. And, I would not use Eagle anymore. Never again. Took me an hour to find an old version I could use with my licence, it brought me to tears what happened to this program after being bought by Autodesk. Everybody warned me to use this 0nonfree software, and I thought "whatever... works for me." - then reality hit.
+Update five years later, 2017: yes I got them. and then I forgot them. And, I would not use Eagle anymore. Never again. Took me an hour to find an old version I could use with my licence, it brought me to tears what happened to this program after being bought by Autodesk. Everybody warned me to use this nonfree software, and I thought "whatever... works for me." - then reality hit.
 
 
 
