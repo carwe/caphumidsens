@@ -39,6 +39,7 @@ void main() {
 }
 
 void setup() {
+	// set pins as outputs
 	BIT_SET(&DDRB,PIN_CHARGE);
 	BIT_SET(&DDRB,PIN_OUTPUT);
 	BIT_SET(&DDRB,PIN_OUTPUT2);
@@ -76,7 +77,8 @@ void loop() {
 //		ACinterrupt_handling();
 //	}
 
-	BIT_BOOL_SET(&PORTB,PIN_OUTPUT ,CAP_charging);
+	BIT_BOOL_SET(&PORTB,PIN_OUTPUT,CAP_charging);
+	BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,!CAP_charging);
 	//BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,1);
 
 
@@ -111,7 +113,7 @@ void AC_setup() {
 	BIT_CLEAR(&ACSR,ACD);		// enable Analog Comparator
 	BIT_CLEAR(&ADCSRB,ACME);	// disable multiplexer
 	BIT_CLEAR(&ACSR,ACIS1);		// set to interrupt on any edge
-	BIT_CLEAR(&ACSR,ACIS0);		// ^
+	BIT_CLEAR(&ACSR,ACIS0);		// "
 	BIT_SET(&ACSR,ACIE);		// enable AC interrupt
 }
 
@@ -119,12 +121,14 @@ void CAP_charge	() {
 	// AIN0 as positive side, then charge
 	BIT_CLEAR(&ACSR,ACBG);
 	BIT_SET(&PORTB,PIN_CHARGE);
+	CAP_charging=1;
 }
 
 void CAP_discharge () {
 	// INTERNAL_VREF as positive side, then discharge
 	BIT_SET(&ACSR,ACBG);
 	BIT_CLEAR(&PORTB,PIN_CHARGE);
+	CAP_charging=0;
 }
 
 void ACinterrupt_handling() {
@@ -133,9 +137,7 @@ void ACinterrupt_handling() {
 	AC_interrupt = 0;
 	if (CAP_charging) {	// was charging
 		CAP_discharge();
-		CAP_charging=0;
 	} else {		// was discharging
 		CAP_charge();
-		CAP_charging=1;
 	}
 }
