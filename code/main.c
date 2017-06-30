@@ -28,7 +28,7 @@ void ACinterrupt_handling();
 
 
 volatile char CAP_charging = 1; // 1==charging, 0==discharging
-volatile char AC_interrupt = 0; // 1 when ISR signals hit
+volatile char AC_interrupt = 0; // 1 when ISR signals voltage equality
 
 
 void main() {
@@ -115,6 +115,7 @@ void AC_setup() {
 	BIT_CLEAR(&ACSR,ACIS1);		// set to interrupt on any edge
 	BIT_CLEAR(&ACSR,ACIS0);		// "
 	BIT_SET(&ACSR,ACIE);		// enable AC interrupt
+	sei();				// enable global interrupts
 }
 
 void CAP_charge	() {
