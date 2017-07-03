@@ -9,12 +9,11 @@
 #include <util/delay.h>
 #include "BitIO.h"
 
-void setup();
-void loop();
 void AC_setup();
 void CAP_charge();
 void CAP_discharge();
 void ACinterrupt_handling();
+void TIM_setup(char);
 
 // on AtTiny25/45/85/13A only Port B exists
 #define PIN_CHARGE	2	// as digital output
@@ -26,19 +25,16 @@ void ACinterrupt_handling();
 #define PIN_OUTPUT2	4	// as digital output, for $protocol
 
 
-
-volatile char CAP_charging = 1; // 1==charging, 0==discharging
-volatile char AC_interrupt = 0; // 1 when ISR signals voltage equality
-
+volatile char AC_interrupt   = 0;   // 1 when ISR signals voltage equality
+volatile int  AC_interrupts  = 0;   // hold the interrupts so far
+volatile char CAP_charging   = 1;   // 1==charging, 0==discharging
+volatile int  CAP_capacity   = 0;   // hold the interrupts per gate time
+         char CAP_countAmax  = 255; // CAP_countAmax * CAP_countBmax should be CPU cycles per gate time // and define how long charge/discharge-cycles will be added up
+         int  CAP_countBmax  = 100; // ^
+         int  CAP_countB     = 0;   // ^
+// count from 0 to CAP_countAmax * CAP_countBmax, sum up the oscillations of the charge/discharge-cycle in AC_interrupts, and copy to CAP_capacity at the end
 
 void main() {
-	setup();
-	while (1) {
-		loop();
-	}
-}
-
-void setup() {
 	// set pins as outputs
 	BIT_SET(&DDRB,PIN_CHARGE);
 	BIT_SET(&DDRB,PIN_OUTPUT);
@@ -67,40 +63,27 @@ void setup() {
 
 
 	AC_setup();
+	TIM_setup(CAP_countAmax);
 	CAP_charge();
+
+
+	int time = 0;
+	while (1) {
+//		if (AC_interrupt) {
+//			ACinterrupt_handling();
+//		}
+
+		BIT_BOOL_SET(&PORTB,PIN_OUTPUT,CAP_charging);
+//		BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,(AC_counter>(AC_counter_max/2)));
+//		BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,1);
+
+
+//		if (AC_counter>=AC_counter_max) AC_counter=0;
+		time+=1; if (time>=3000) { time=0; }
+//		_delay_ms(1);
+	}
 }
 
-int time;
-
-void loop() {
-//	if (AC_interrupt) {
-//		ACinterrupt_handling();
-//	}
-
-	BIT_BOOL_SET(&PORTB,PIN_OUTPUT,CAP_charging);
-	BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,!CAP_charging);
-	//BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,1);
-
-
-//	if (time%100 == 0) { // every 100m
-//		digitalWrite(PIN_OUTPUT2, AC_interrupt);
-//	}
-
-//	if (time==0) {
-//		BIT_SET(&PORTB,PIN_CHARGE);
-//		BIT_SET(&PORTB,PIN_OUTPUT);
-//	}
-
-
-//	if(time==1500) {
-//		BIT_CLEAR(&PORTB,PIN_CHARGE);
-//		BIT_CLEAR(&PORTB,PIN_OUTPUT);
-//	}
-
-
-	time+=1; if (time>=3000) { time=0; }
-	_delay_ms(1);
-}
 
 
 ISR (ANA_COMP_vect) {
@@ -125,20 +108,44 @@ void CAP_charge	() {
 	CAP_charging=1;
 }
 
-void CAP_discharge () {
+void CAP_discharge ()
+{
 	// INTERNAL_VREF as positive side, then discharge
 	BIT_SET(&ACSR,ACBG);
 	BIT_CLEAR(&PORTB,PIN_CHARGE);
 	CAP_charging=0;
 }
 
-void ACinterrupt_handling() {
-	// handle equality of voltages
+void ACinterrupt_handling()
+{	// handle equality of voltages
 
 	AC_interrupt = 0;
-	if (CAP_charging) {	// was charging
+	if (CAP_charging)	// was charging
+	{
+		AC_interrupts++;
 		CAP_discharge();
 	} else {		// was discharging
 		CAP_charge();
+	}
+}
+
+void TIM_setup(char CAP_countAmax) {
+	BIT_BOOL_SET(&TCCR0B,CS02,0);	// select clock source, 001==CLK without prescaler
+	BIT_BOOL_SET(&TCCR0B,CS01,0);	// ^
+	BIT_BOOL_SET(&TCCR0B,CS00,1);	// ^
+	BIT_BOOL_SET(&TIMSK,TOIE0,1);	// overflow interrupt enable
+	TCNT0 = 0;			// reset timer
+	OCR0A = CAP_countAmax;		// set to overflow on this value
+}
+
+ISR (TIM0_OVF_vect) {
+	// handle overflow of timer (every CAP_countAmax)
+
+	CAP_countB++;
+	if (CAP_countB >= CAP_countBmax)
+	{
+		CAP_countB = 0;
+		CAP_capacity = AC_interrupts;
+		AC_interrupts = 0;
 	}
 }
