@@ -25,40 +25,39 @@ void TIM_setup(char);
 #define PIN_OUTPUT2	4	// as digital output, for $protocol
 
 
-volatile char AC_interrupt   = 0;   // 1 when ISR signals voltage equality
-volatile int  AC_interrupts  = 0;   // hold the interrupts so far
-volatile char CAP_charging   = 1;   // 1==charging, 0==discharging
-volatile int  CAP_capacity   = 0;   // hold the interrupts per gate time
-         char CAP_countAmax  = 255; // CAP_countAmax * CAP_countBmax should be CPU cycles per gate time // and define how long charge/discharge-cycles will be added up
-         int  CAP_countBmax  = 100; // ^
-         int  CAP_countB     = 0;   // ^
+volatile char AC_interrupt   = 0;	// 1 when ISR signals voltage equality
+volatile int  AC_interrupts  = 0;	// hold the interrupts so far
+volatile char CAP_charging   = 1;	// 1==charging, 0==discharging
+volatile int  CAP_capacity   = 0;	// hold the interrupts per gate time
+         char CAP_countAmax  = 255;	// CAP_countAmax * CAP_countBmax should be CPU cycles per gate time // and define how long charge/discharge-cycles will be added up
+         int  CAP_countBmax  = 100;	// ^
+         int  CAP_countB     = 0;	// ^
 // count from 0 to CAP_countAmax * CAP_countBmax, sum up the oscillations of the charge/discharge-cycle in AC_interrupts, and copy to CAP_capacity at the end
 
 void main() {
-	// set pins as outputs
-	BIT_SET(&DDRB,PIN_CHARGE);
-	BIT_SET(&DDRB,PIN_OUTPUT);
-	BIT_SET(&DDRB,PIN_OUTPUT2);
+	BIT_BOOL_SET(&DDRB,PIN_CHARGE,1);	// set pins as outputs
+	BIT_BOOL_SET(&DDRB,PIN_OUTPUT,1);	// ^
+	BIT_BOOL_SET(&DDRB,PIN_OUTPUT2,1);	// ^
 
 	// let the LEDs blink two times to signal the end of the bootloader
-	BIT_CLEAR(&PORTB,PIN_OUTPUT);
-	BIT_CLEAR(&PORTB,PIN_OUTPUT2);
+	BIT_BOOL_SET(&PORTB,PIN_OUTPUT,0);
+	BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,0);
 	_delay_ms(100);
 
-	BIT_SET(&PORTB,PIN_OUTPUT);
-	BIT_SET(&PORTB,PIN_OUTPUT2);
+	BIT_BOOL_SET(&PORTB,PIN_OUTPUT,1);
+	BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,1);
 	_delay_ms(100);
 
-	BIT_CLEAR(&PORTB,PIN_OUTPUT);
-	BIT_CLEAR(&PORTB,PIN_OUTPUT2);
+	BIT_BOOL_SET(&PORTB,PIN_OUTPUT,0);
+	BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,0);
 	_delay_ms(100);
 
-	BIT_SET(&PORTB,PIN_OUTPUT);
-	BIT_SET(&PORTB,PIN_OUTPUT2);
+	BIT_BOOL_SET(&PORTB,PIN_OUTPUT,1);
+	BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,1);
 	_delay_ms(100);
 
-	BIT_CLEAR(&PORTB,PIN_OUTPUT);
-	BIT_CLEAR(&PORTB,PIN_OUTPUT2);
+	BIT_BOOL_SET(&PORTB,PIN_OUTPUT,0);
+	BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,0);
 	_delay_ms(100);
 
 
@@ -93,26 +92,26 @@ ISR (ANA_COMP_vect) {
 
 
 void AC_setup() {
-	BIT_CLEAR(&ACSR,ACD);		// enable Analog Comparator
-	BIT_CLEAR(&ADCSRB,ACME);	// disable multiplexer
-	BIT_CLEAR(&ACSR,ACIS1);		// set to interrupt on any edge
-	BIT_CLEAR(&ACSR,ACIS0);		// "
-	BIT_SET(&ACSR,ACIE);		// enable AC interrupt
+	BIT_BOOL_SET(&ACSR,ACD,0);	// enable Analog Comparator
+	BIT_BOOL_SET(&ADCSRB,ACME,0);	// disable multiplexer
+	BIT_BOOL_SET(&ACSR,ACIS1,0);	// set to interrupt on any edge
+	BIT_BOOL_SET(&ACSR,ACIS0,0);	// ^
+	BIT_BOOL_SET(&ACSR,ACIE,1);	// enable AC interrupt
 	sei();				// enable global interrupts
 }
 
 void CAP_charge	() {
 	// AIN0 as positive side, then charge
-	BIT_CLEAR(&ACSR,ACBG);
-	BIT_SET(&PORTB,PIN_CHARGE);
+	BIT_BOOL_SET(&ACSR,ACBG,0);
+	BIT_BOOL_SET(&PORTB,PIN_CHARGE,1);
 	CAP_charging=1;
 }
 
 void CAP_discharge ()
 {
 	// INTERNAL_VREF as positive side, then discharge
-	BIT_SET(&ACSR,ACBG);
-	BIT_CLEAR(&PORTB,PIN_CHARGE);
+	BIT_BOOL_SET(&ACSR,ACBG,1);
+	BIT_BOOL_SET(&PORTB,PIN_CHARGE,0);
 	CAP_charging=0;
 }
 
