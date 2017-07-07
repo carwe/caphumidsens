@@ -39,6 +39,10 @@ void main() {
 	BIT_BOOL_SET(&DDRB,PIN_OUTPUT,1);	// ^
 	BIT_BOOL_SET(&DDRB,PIN_OUTPUT2,1);	// ^
 
+	BIT_BOOL_SET(&DIDR0,PIN_SENSE,1);	// disable digital input hardware of analog inputs
+//	BIT_BOOL_SET(&DIDR0,PIN_VREF_1_3,1);	// ^
+	BIT_BOOL_SET(&DIDR0,PIN_VREF_2_3,1);	// ^
+
 	// let the LEDs blink two times to signal the end of the bootloader
 	BIT_BOOL_SET(&PORTB,PIN_OUTPUT,0);
 	BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,0);
@@ -69,10 +73,9 @@ void main() {
 	int time = 0;
 	while (1) {
 		char temp1 = 0;
-		BIT_BOOL_SET(&PORTB,PIN_OUTPUT,CAP_charging);
-		BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,(CAP_countB>(CAP_countBmax/2)));
-//		BIT_BOOL_SET(&PORTB,PIN_CHARGE,(CAP_countB>(CAP_countBmax/2)));
-//		BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,( (&ACSR) && (1<<ACI) ));
+//		BIT_BOOL_SET(&PORTB,PIN_OUTPUT,CAP_charging);
+//		BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,(CAP_countB>(CAP_countBmax/2)));
+		BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,( (&ACSR) && (1<<ACO) ));
 
 		time+=1; if (time>=3000) { time=0; }
 		_delay_ms(10);
