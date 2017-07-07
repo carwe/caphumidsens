@@ -30,8 +30,8 @@ volatile int  AC_interrupts  = 0;	// hold the interrupts so far
 volatile char CAP_charging   = 1;	// 1==charging, 0==discharging
 volatile int  CAP_capacity   = 0;	// hold the interrupts per gate time
          char CAP_countAmax  = 255;	// CAP_countAmax * CAP_countBmax should be CPU cycles per gate time // and define how long charge/discharge-cycles will be added up
-         int  CAP_countBmax  = 100;	// ^
-         int  CAP_countB     = 0;	// ^
+         int  CAP_countBmax  = 15000;	// ^
+volatile int  CAP_countB     = 0;	// ^
 // count from 0 to CAP_countAmax * CAP_countBmax, sum up the oscillations of the charge/discharge-cycle in AC_interrupts, and copy to CAP_capacity at the end
 
 void main() {
@@ -68,18 +68,14 @@ void main() {
 
 	int time = 0;
 	while (1) {
-//		if (AC_interrupt) {
-//			ACinterrupt_handling();
-//		}
-
+		char temp1 = 0;
 		BIT_BOOL_SET(&PORTB,PIN_OUTPUT,CAP_charging);
-//		BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,(AC_counter>(AC_counter_max/2)));
-//		BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,1);
+		BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,(CAP_countB>(CAP_countBmax/2)));
+//		BIT_BOOL_SET(&PORTB,PIN_CHARGE,(CAP_countB>(CAP_countBmax/2)));
+//		BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,( (&ACSR) && (1<<ACI) ));
 
-
-//		if (AC_counter>=AC_counter_max) AC_counter=0;
 		time+=1; if (time>=3000) { time=0; }
-//		_delay_ms(1);
+		_delay_ms(10);
 	}
 }
 
@@ -94,8 +90,8 @@ ISR (ANA_COMP_vect) {
 void AC_setup() {
 	BIT_BOOL_SET(&ACSR,ACD,0);	// enable Analog Comparator
 	BIT_BOOL_SET(&ADCSRB,ACME,0);	// disable multiplexer
-	BIT_BOOL_SET(&ACSR,ACIS1,0);	// set to interrupt on any edge
-	BIT_BOOL_SET(&ACSR,ACIS0,0);	// ^
+	BIT_BOOL_SET(&ACSR,ACIS0,0);	// set to interrupt on any edge
+	BIT_BOOL_SET(&ACSR,ACIS1,0);	// ^
 	BIT_BOOL_SET(&ACSR,ACIE,1);	// enable AC interrupt
 	sei();				// enable global interrupts
 }
@@ -103,6 +99,12 @@ void AC_setup() {
 void CAP_charge	() {
 	// AIN0 as positive side, then charge
 	BIT_BOOL_SET(&ACSR,ACBG,0);
+
+	BIT_BOOL_SET(&ACSR,ACIE,0);	// disable AC interrupt
+	BIT_BOOL_SET(&ACSR,ACIS0,1);	// set to trigger on raising edge
+	BIT_BOOL_SET(&ACSR,ACIS1,1);	// ^
+	BIT_BOOL_SET(&ACSR,ACIE,1);	// enable AC interrupt
+
 	BIT_BOOL_SET(&PORTB,PIN_CHARGE,1);
 	CAP_charging=1;
 }
@@ -111,6 +113,12 @@ void CAP_discharge ()
 {
 	// INTERNAL_VREF as positive side, then discharge
 	BIT_BOOL_SET(&ACSR,ACBG,1);
+
+	BIT_BOOL_SET(&ACSR,ACIE,0);	// disable AC interrupt
+	BIT_BOOL_SET(&ACSR,ACIS0,0);	// set to trigger on falling edge
+	BIT_BOOL_SET(&ACSR,ACIS1,1);	// ^
+	BIT_BOOL_SET(&ACSR,ACIE,1);	// enable AC interrupt
+
 	BIT_BOOL_SET(&PORTB,PIN_CHARGE,0);
 	CAP_charging=0;
 }
