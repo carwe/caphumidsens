@@ -18,8 +18,8 @@ void TIM_setup(char);
 // on AtTiny25/45/85/13A only Port B exists
 #define PIN_CHARGE	2	// as digital output
 #define PIN_SENSE	0	// must be on opposite side of multiplexer-input in analog comparator -> AIN0 on AtTiny13A/25/45/85, when usage of internal voltage reference wished
-				// must not be AIN0, when two external external reference voltages will be used
-//#define PIN_VREF_1_3	0	// pin must be usable by analog comparator, maybe via multiplexer ; can be substituted with internal voltage reference, when above conditions for PIN_SENSE given
+				// must not be AIN0, when two external reference voltages will be used
+//#define PIN_VREF_1_3	0	// pin must be usable by analog comparator, maybe via multiplexer // can be substituted with internal voltage reference, when above conditions for PIN_SENSE given
 #define PIN_VREF_2_3	1	// pin must be usable by analog comparator, maybe via multiplexer
 #define PIN_OUTPUT	3	// as digital output, for $protocol
 #define PIN_OUTPUT2	4	// as digital output, for $protocol
@@ -43,23 +43,20 @@ void main() {
 //	BIT_BOOL_SET(&DIDR0,PIN_VREF_1_3,1);	// ^
 	BIT_BOOL_SET(&DIDR0,PIN_VREF_2_3,1);	// ^
 
+
 	// let the LEDs blink two times to signal the end of the bootloader
 	BIT_BOOL_SET(&PORTB,PIN_OUTPUT,0);
 	BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,0);
 	_delay_ms(100);
-
 	BIT_BOOL_SET(&PORTB,PIN_OUTPUT,1);
 	BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,1);
 	_delay_ms(100);
-
 	BIT_BOOL_SET(&PORTB,PIN_OUTPUT,0);
 	BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,0);
 	_delay_ms(100);
-
 	BIT_BOOL_SET(&PORTB,PIN_OUTPUT,1);
 	BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,1);
 	_delay_ms(100);
-
 	BIT_BOOL_SET(&PORTB,PIN_OUTPUT,0);
 	BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,0);
 	_delay_ms(100);
@@ -75,10 +72,11 @@ void main() {
 		char temp1 = 0;
 //		BIT_BOOL_SET(&PORTB,PIN_OUTPUT,CAP_charging);
 //		BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,(CAP_countB>(CAP_countBmax/2)));
-		BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,( (&ACSR) && (1<<ACO) ));
+		BIT_BOOL_SET(&PORTB,PIN_OUTPUT,( ACSR & (1<<ACI) ));	// ana_comp interrupt flag
+		BIT_BOOL_SET(&PORTB,PIN_OUTPUT2,( SREG & (1<<SREG_I)   ));	// global interrupt enable flag
 
 		time+=1; if (time>=3000) { time=0; }
-		_delay_ms(10);
+//		_delay_ms(10);
 	}
 }
 
@@ -93,38 +91,39 @@ ISR (ANA_COMP_vect) {
 void AC_setup() {
 	BIT_BOOL_SET(&ACSR,ACD,0);	// enable Analog Comparator
 	BIT_BOOL_SET(&ADCSRB,ACME,0);	// disable multiplexer
-	BIT_BOOL_SET(&ACSR,ACIS0,0);	// set to interrupt on any edge
-	BIT_BOOL_SET(&ACSR,ACIS1,0);	// ^
-	BIT_BOOL_SET(&ACSR,ACIE,1);	// enable AC interrupt
+//	BIT_BOOL_SET(&ACSR,ACIS0,0);	// set to interrupt on any edge
+//	BIT_BOOL_SET(&ACSR,ACIS1,0);	// ^
+//	BIT_BOOL_SET(&ACSR,ACIE,1);	// enable AC interrupt
 	sei();				// enable global interrupts
 }
 
+
 void CAP_charge	() {
-	// AIN0 as positive side, then charge
-	BIT_BOOL_SET(&ACSR,ACBG,0);
+	BIT_BOOL_SET(&ACSR,ACIE,0);		// disable AC interrupt
 
-	BIT_BOOL_SET(&ACSR,ACIE,0);	// disable AC interrupt
-	BIT_BOOL_SET(&ACSR,ACIS0,1);	// set to trigger on raising edge
-	BIT_BOOL_SET(&ACSR,ACIS1,1);	// ^
-	BIT_BOOL_SET(&ACSR,ACIE,1);	// enable AC interrupt
+	BIT_BOOL_SET(&ACSR,ACBG,0);		// AIN0 as positive side
+	BIT_BOOL_SET(&ACSR,ACIS0,1);		// set to trigger on raising edge
+	BIT_BOOL_SET(&ACSR,ACIS1,1);		// ^
 
-	BIT_BOOL_SET(&PORTB,PIN_CHARGE,1);
+	BIT_BOOL_SET(&ACSR,ACIE,1);		// enable AC interrupt
+	BIT_BOOL_SET(&PORTB,PIN_CHARGE,1);	// charge
 	CAP_charging=1;
 }
 
+
 void CAP_discharge ()
 {
-	// INTERNAL_VREF as positive side, then discharge
-	BIT_BOOL_SET(&ACSR,ACBG,1);
+	BIT_BOOL_SET(&ACSR,ACIE,0);		// disable AC interrupt
 
-	BIT_BOOL_SET(&ACSR,ACIE,0);	// disable AC interrupt
-	BIT_BOOL_SET(&ACSR,ACIS0,0);	// set to trigger on falling edge
-	BIT_BOOL_SET(&ACSR,ACIS1,1);	// ^
-	BIT_BOOL_SET(&ACSR,ACIE,1);	// enable AC interrupt
+	BIT_BOOL_SET(&ACSR,ACBG,1);		// INTERNAL_VREF as positive side
+	BIT_BOOL_SET(&ACSR,ACIS0,0);		// set to trigger on falling edge
+	BIT_BOOL_SET(&ACSR,ACIS1,0);		// ^
 
-	BIT_BOOL_SET(&PORTB,PIN_CHARGE,0);
+	BIT_BOOL_SET(&ACSR,ACIE,1);		// enable AC interrupt
+	BIT_BOOL_SET(&PORTB,PIN_CHARGE,0);	// discharge
 	CAP_charging=0;
 }
+
 
 void ACinterrupt_handling()
 {	// handle equality of voltages
@@ -139,6 +138,7 @@ void ACinterrupt_handling()
 	}
 }
 
+
 void TIM_setup(char CAP_countAmax) {
 	BIT_BOOL_SET(&TCCR0B,CS02,0);	// select clock source, 001==CLK without prescaler
 	BIT_BOOL_SET(&TCCR0B,CS01,0);	// ^
@@ -147,6 +147,7 @@ void TIM_setup(char CAP_countAmax) {
 	TCNT0 = 0;			// reset timer
 	OCR0A = CAP_countAmax;		// set to overflow on this value
 }
+
 
 ISR (TIM0_OVF_vect) {
 	// handle overflow of timer (every CAP_countAmax)
