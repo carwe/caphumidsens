@@ -1,3 +1,14 @@
+<b>code not usable due to never debugged bugs</b>
+
+<b>code not usable due to never debugged bugs</b>
+
+<b>code not usable due to never debugged bugs</b>
+
+<b>code not usable due to never debugged bugs</b>
+
+
+
+
 caphumidsens
 ============
 Contains EAGLE-files for a pcb to convert soil moisture into frequency.
@@ -42,7 +53,7 @@ You have to decide if you want to use the internal voltage reference or not. If 
 
 I chose to use two external voltage references, created by division of VCC, same as in 555. This way it makes no difference what exact voltage VCC is, it can even change, the resulting frequency is independent. So you sense the voltage on AIN0 as positive side of the AC, and the multiplexer as negative side, and switch the input of the multiplexer as you charge (ADC1) and discharge (ADC2).
 
-Pin 6 is set to VCC or GND to charge or discharge the capacitator, pin 5 senses the voltage and compares it to pin 3 or 7. On pin 1 (and maybe pin 2, if clock-ínput is not needed) you can talk a protocol you like - a simple frequency like the NE555 or something more complex, maybe pulling the line low against a central pull-resistor (I2C-like), sending your ID (stored in EEPROM) followed by the measured capacity. After you have written out a bit of your ID, you read it back, if another sensor is sending too (pulling the line dominates leaving the line alone, so the ID with the most "pulling bits" is the highest, CAN-like). The frequency of the messages is low enough, so that collisions should hardly occur, and if, you simply repeat your message.
+Pin 6 is set to VCC or GND to charge or discharge the capacitator, pin 5 senses the voltage and compares it to pin 3 or 7. On pin 1 (and maybe pin 2, if clock-Ã­nput is not needed) you can talk a protocol you like - a simple frequency like the NE555 or something more complex, maybe pulling the line low against a central pull-resistor (I2C-like), sending your ID (stored in EEPROM) followed by the measured capacity. After you have written out a bit of your ID, you read it back, if another sensor is sending too (pulling the line dominates leaving the line alone, so the ID with the most "pulling bits" is the highest, CAN-like). The frequency of the messages is low enough, so that collisions should hardly occur, and if, you simply repeat your message.
 
 Pin 1 is the reset/debugwire-pin too, so you can use debugwire to program the harder part of measuring the capacity, as you don't need the output-pin during this time. I have added small capacitators to even out the reference voltages, if that is necessary.
 
