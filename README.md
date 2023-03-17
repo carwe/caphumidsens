@@ -1,3 +1,6 @@
+ARCHIVED on github -> migrated to codeberg: https://codeberg.org/carwe/wii-safecracker-ballpuzzle
+
+
 <b>code not usable due to never debugged bugs</b>
 
 <b>code not usable due to never debugged bugs</b>
